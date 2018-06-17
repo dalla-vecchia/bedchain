@@ -1,0 +1,155 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bedchain</title>
+
+
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+<body>
+    <div class="container">
+
+        <h1>Bedchain Management</h1>
+
+<h2>Bed Allocations (Confirmed)</h2>
+<p>For Green Homes</p>
+
+<table class="table">
+
+  <tr>
+    <td>Care Home ID</td>
+  <td>    <p id="carehomeidblock"></p></td>
+  </tr>
+
+
+<tr>
+  <td>Ward Number</td>
+<td>    <p id="wardnumberblock"></p></td>
+</tr>
+
+
+<tr>
+    <td>Building</td>
+<td>  <p id="buildingblock"></p></td>
+</tr>
+</table>
+
+
+
+<button type="button" class="btn btn-default" id="btnReadBed">Read Patient Bed Details</button>
+
+
+// 0x4e5ec06959d9d41b5393fbdd3f22aa1e4dc2eb251edbc3726f276bd6916b4ad1 green homes
+
+// 0xb45daf578f5f95e3cffe8a6df74d848184db0957 - address
+
+
+<h2>Patient ID</h2>
+        <label for="certidentity" class="col-lg-2 control-label">Patient Name</label>
+        <input id="certidentity" type="text">
+        <p id="certhashVal"></p>
+          <button id="btnHash">Get PatientID (Hash)</button>
+<h2>Add Patient Bed</h2>
+<p> Example - green homes </p>
+
+
+
+        <label for="wardnumber" class="col-lg-2 control-label">WardNumber</label>
+        <input id="wardnumber" type="text">
+
+        <label for="building" class="col-lg-2 control-label">BuildingNumber</label>
+        <input id="building" type="text">
+
+        <button id="btnAddBed">Allocate Bed to Patient</button>
+
+
+        <h2 id="Details">Transaction</h2>
+        <p id="txnID"></p>
+
+
+<p id="inCertHash"></p>
+
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script>
+    if (typeof web3 !== 'undefined') {
+       web3 = new Web3(web3.currentProvider);
+   } else {
+       // set the provider you want from Web3.providers
+       web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+   }
+       // Our future code here..
+        web3.eth.defaultAccount = web3.eth.accounts[0];
+        var BCContract = web3.eth.contract([{"constant":false,"inputs":[{"name":"PatientID","type":"bytes32"}],"name":"addPatient","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"Patients","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"PatientID","type":"bytes32"},{"name":"_CareHomeID","type":"bytes32"},{"name":"_WardNumber","type":"uint256"},{"name":"_BuildingNumber","type":"uint256"}],"name":"addPatientBed","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"patientid","type":"bytes32"}],"name":"readPatientBeds","outputs":[{"name":"","type":"bytes32"},{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"PatientBeds","outputs":[{"name":"CareHomeID","type":"bytes32"},{"name":"WardNumber","type":"uint256"},{"name":"BuildingNumber","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"CareHomes","outputs":[{"name":"NumberFreeBeds","type":"uint256"},{"name":"NumberUsedBeds","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"CareHomeID","type":"bytes32"},{"name":"_NumberFreeBeds","type":"uint256"},{"name":"_NumberUsedBeds","type":"uint256"}],"name":"addCareHome","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"}]
+);
+
+        var aBCContract = BCContract.at('0xb45daf578f5f95e3cffe8a6df74d848184db0957');
+
+$("#btnHash").click(function() {
+  var inputCert = $("#certidentity").val();
+var certhash = web3.sha3($("#certidentity").val());
+  $("#certhashVal").html('Patient ID ' + certhash);
+});
+
+
+$("#btnAddBed").click(function() {
+var inputCert1 = $("#certidentity").val();
+      var carehomeid = "0x4e5ec06959d9d41b5393fbdd3f22aa1e4dc2eb251edbc3726f276bd6916b4ad1"; //green homes
+      var wardnumber = web3.sha3($("#wardnumber").val());
+      var building = web3.sha3($("#building").val());
+      $("#carehomeid").html('CareHomeID ' + carehomeid);
+      $("#wardnumber").html('WardNumber' + wardnumber);
+      $("#building").html('BuildingNumber ' + building);
+
+      aBCContract.addPatientBed(carehomeid,wardnumber,building , function(error, result){
+    if(!error) {
+          $("#txnID").html('Txn ' + result)
+        console.log(result)
+      }
+    else
+        console.error(error);
+    });
+});
+
+$("#btnReadBed").click(function() {
+
+var carehomeid = "0x4e5ec06959d9d41b5393fbdd3f22aa1e4dc2eb251edbc3726f276bd6916b4ad1";
+    aBCContract.readPatientBeds(carehomeid, function(error, result){
+    if(!error)
+    {
+        $("#carehomeidblock").html('CareHomeID  ' + result[0]);
+        $("#wardnumberblock").html('Ward ' + result[1]);
+        $("#buildingblock").html('Building ' + result[2]);
+        console.log(result);
+    }
+    else {
+        $("#carehomeidblock").html(' '  );
+        $("#wardnumberblock").html(' '  );
+        $("#buildingblock").html(' '  );
+        console.error(error);
+      }
+    });
+
+
+});
+        console.log(aBCContract);
+
+    </script>
+
+</body>
+</html>
